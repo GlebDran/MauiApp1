@@ -6,6 +6,16 @@
     xmlns:local="clr-namespace:MauiApp1"
     Title="MauiApp1">
 
+    <Shell.TitleView>
+        <Label 
+            Text="Naidised"
+            FontFamily="verdana"
+            FontSize="Title"
+            TextColor="DarkBlue"
+            VerticalTextAlignment="Center"
+            Padding="25, 25,0,0"
+            HeightRequest="50"/>
+    </Shell.TitleView>
     <ShellContent
         Title="Avaleht"
         ContentTemplate="{DataTemplate local:StartPage}"

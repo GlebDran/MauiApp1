@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace MauiApp1;
 
 public partial class StartPage : ContentPage
@@ -19,11 +21,19 @@ public partial class StartPage : ContentPage
 				FontSize = 20,
 				TextColor = Colors.Black,
 				CornerRadius = 20,
-				FontFamily = "verdana"
+				FontFamily = "verdana",
+				ZIndex=i
 			};
 			vsl.Add(nupp);
+            nupp.Clicked += Nupp_Clicked;
 		}
 		sv = new ScrollView { Content = vsl };
 		Content = sv;
 	}
+
+    private async void Nupp_Clicked(object? sender, EventArgs e)
+    {
+        Button nupp = (Button)sender;
+		await Navigation.PushAsync(lehed[nupp.ZIndex]);
+    }
 }
