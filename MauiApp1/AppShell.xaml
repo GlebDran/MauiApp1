@@ -13,7 +13,8 @@
             FontSize="Title"
             TextColor="DarkBlue"
             VerticalTextAlignment="Center"
-            Padding="25, 25,0,0"
+            HorizontalOptions="Center"
+            Padding="25, 25,25,0"
             HeightRequest="50"/>
     </Shell.TitleView>
     <ShellContent

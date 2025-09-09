@@ -26,7 +26,8 @@ public partial class FigurePage : ContentPage
 		hsl = new HorizontalStackLayout
 		{
 			Children = { boxView },
-			BackgroundColor = Color.FromRgb(120, 30, 50),
+			HorizontalOptions = LayoutOptions.Center,
+			VerticalOptions = LayoutOptions.Center,
 		};
 		Content = hsl;
 	}
