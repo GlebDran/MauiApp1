@@ -7,22 +7,22 @@ public partial class Valgusfoor : ContentPage
     // включён ли светофор
     bool isOn = false;
 
-    // выбран ли ночной режим (переключатель)
+    // выбран ли ночной режим
     bool isNight = false;
 
-    // таймеры: день (переключение фаз), ночь (мигание), часы
+    // таймеры
     IDispatcherTimer? dayTimer;
     IDispatcherTimer? nightTimer;
     IDispatcherTimer? clockTimer;
 
-    // фазы дневного цикла
+    // фазы днём
     enum Phase { Red, Yellow, Green }
     Phase current = Phase.Red;
 
-    // секунд осталось в текущей фазе (для обратного отсчёта)
+    // сколько секунд осталось
     int secondsLeft = 0;
 
-    // длительности фаз
+    // длительность каждой фазы
     const int RED_SEC = 7;
     const int YELLOW_SEC = 2;
     const int GREEN_SEC = 6;
@@ -31,13 +31,12 @@ public partial class Valgusfoor : ContentPage
     {
         InitializeComponent();
 
-        StartClock(); // часы сверху
-        PaintOff();   // изначально всё серое
+        StartClock(); // запускаю часы
+        PaintOff();   // всё серое в начале
     }
 
-    //КНОПКИ
+    // ===== кнопки =====
 
-    //включить
     void OnSisseClicked(object sender, EventArgs e)
     {
         isOn = true;
@@ -47,7 +46,6 @@ public partial class Valgusfoor : ContentPage
         else StartDayCycle();
     }
 
-    //выключить
     void OnValjaClicked(object sender, EventArgs e)
     {
         isOn = false;
@@ -58,20 +56,19 @@ public partial class Valgusfoor : ContentPage
         PaintOff();
     }
 
-    // переключатель День/Ночь
+    // ===== переключатель день/ночь =====
+
     void OnNightToggled(object sender, ToggledEventArgs e)
     {
         isNight = e.Value;
 
         if (!isOn)
         {
-            // просто обновим внешний вид
             PaintOff();
             HeaderLabel.Text = isNight ? "Ночной режим (выключено)" : "Дневной режим (выключено)";
             return;
         }
 
-        // если включено — переключаем логику
         if (isNight)
         {
             StopDayCycle();
@@ -84,27 +81,35 @@ public partial class Valgusfoor : ContentPage
         }
     }
 
-    //ДНЕВНОЙ ЦИКЛ (красный жёлтый зелёный)
+    // ===== дневной цикл =====
 
     void StartDayCycle()
     {
-        dayTimer ??= Dispatcher.CreateTimer();
+        if (dayTimer == null)
+        {
+            dayTimer = Dispatcher.CreateTimer();
+        }
+
         dayTimer.Interval = TimeSpan.FromSeconds(1);
         dayTimer.Tick -= OnDayTick;
         dayTimer.Tick += OnDayTick;
 
-        // начинаем с красного
         current = Phase.Red;
         secondsLeft = RED_SEC;
         PaintDayPhase();
+        UpdateCountdown();
 
-        if (!dayTimer.IsRunning) dayTimer.Start();
+        if (!dayTimer.IsRunning)
+            dayTimer.Start();
+
         HeaderLabel.Text = "Дневной режим";
     }
 
     void StopDayCycle()
     {
-        dayTimer?.Stop();
+        if (dayTimer != null)
+            dayTimer.Stop();
+
         ClearCountdowns();
     }
 
@@ -117,21 +122,13 @@ public partial class Valgusfoor : ContentPage
 
         if (secondsLeft <= 0)
         {
-            current = current switch
-            {
-                Phase.Red => Phase.Yellow,
-                Phase.Yellow => Phase.Green,
-                Phase.Green => Phase.Red,
-                _ => Phase.Red
-            };
+            if (current == Phase.Red) current = Phase.Yellow;
+            else if (current == Phase.Yellow) current = Phase.Green;
+            else current = Phase.Red;
 
-            secondsLeft = current switch
-            {
-                Phase.Red => RED_SEC,
-                Phase.Yellow => YELLOW_SEC,
-                Phase.Green => GREEN_SEC,
-                _ => 0
-            };
+            if (current == Phase.Red) secondsLeft = RED_SEC;
+            else if (current == Phase.Yellow) secondsLeft = YELLOW_SEC;
+            else if (current == Phase.Green) secondsLeft = GREEN_SEC;
 
             PaintDayPhase();
             UpdateCountdown();
@@ -140,46 +137,72 @@ public partial class Valgusfoor : ContentPage
 
     void PaintDayPhase()
     {
-        // сначала гасим всё
+        // всё серое
         RedCircle.BackgroundColor = Colors.Gray;
         YellowCircle.BackgroundColor = Colors.Gray;
         GreenCircle.BackgroundColor = Colors.Gray;
 
-        // подсвечиваем текущую фазу
-        switch (current)
+        // рамки выключаю
+        RedCircle.BorderColor = Colors.Transparent;
+        YellowCircle.BorderColor = Colors.Transparent;
+        GreenCircle.BorderColor = Colors.Transparent;
+
+        // активный круг подсвечиваю
+        if (current == Phase.Red)
         {
-            case Phase.Red: RedCircle.BackgroundColor = Colors.Red; break;
-            case Phase.Yellow: YellowCircle.BackgroundColor = Colors.Yellow; break;
-            case Phase.Green: GreenCircle.BackgroundColor = Colors.Green; break;
+            RedCircle.BackgroundColor = Colors.Red;
+            RedCircle.BorderColor = Colors.White;
+        }
+        else if (current == Phase.Yellow)
+        {
+            YellowCircle.BackgroundColor = Colors.Yellow;
+            YellowCircle.BorderColor = Colors.White;
+        }
+        else if (current == Phase.Green)
+        {
+            GreenCircle.BackgroundColor = Colors.Green;
+            GreenCircle.BorderColor = Colors.White;
         }
     }
 
-    //НОЧНОЙ РЕЖИМ (мигает жёлтый)
+    // ===== ночной режим =====
 
-    bool yellowOn = false; // текущее состояние мигания
+    bool yellowOn = false;
 
     void StartNightBlink()
     {
-        // гасим красный/зелёный
+        // красный и зелёный выключаю
         RedCircle.BackgroundColor = Colors.Gray;
         GreenCircle.BackgroundColor = Colors.Gray;
+        RedCircle.BorderColor = Colors.Transparent;
+        GreenCircle.BorderColor = Colors.Transparent;
+
         ClearCountdowns();
 
-        nightTimer ??= Dispatcher.CreateTimer();
-        nightTimer.Interval = TimeSpan.FromSeconds(1); // период мигания
+        if (nightTimer == null)
+        {
+            nightTimer = Dispatcher.CreateTimer();
+        }
+
+        nightTimer.Interval = TimeSpan.FromSeconds(1);
         nightTimer.Tick -= OnNightTick;
         nightTimer.Tick += OnNightTick;
 
-        yellowOn = false; // начнём с выкл, на первом тике включим
-        if (!nightTimer.IsRunning) nightTimer.Start();
+        yellowOn = false;
+
+        if (!nightTimer.IsRunning)
+            nightTimer.Start();
 
         HeaderLabel.Text = "Ночной режим: мигает жёлтый";
     }
 
     void StopNightBlink()
     {
-        nightTimer?.Stop();
+        if (nightTimer != null)
+            nightTimer.Stop();
+
         YellowCircle.BackgroundColor = Colors.Gray;
+        YellowCircle.BorderColor = Colors.Transparent;
     }
 
     void OnNightTick(object? sender, EventArgs e)
@@ -187,28 +210,43 @@ public partial class Valgusfoor : ContentPage
         if (!isOn || !isNight) return;
 
         yellowOn = !yellowOn;
-        YellowCircle.BackgroundColor = yellowOn ? Colors.Yellow : Colors.Gray;
+
+        if (yellowOn)
+        {
+            YellowCircle.BackgroundColor = Colors.Yellow;
+            YellowCircle.BorderColor = Colors.White;
+        }
+        else
+        {
+            YellowCircle.BackgroundColor = Colors.Gray;
+            YellowCircle.BorderColor = Colors.Transparent;
+        }
     }
 
+    // ===== вспомогательные методы =====
 
     void PaintOff()
     {
         RedCircle.BackgroundColor = Colors.Gray;
         YellowCircle.BackgroundColor = Colors.Gray;
         GreenCircle.BackgroundColor = Colors.Gray;
+
+        RedCircle.BorderColor = Colors.Transparent;
+        YellowCircle.BorderColor = Colors.Transparent;
+        GreenCircle.BorderColor = Colors.Transparent;
+
         ClearCountdowns();
     }
 
     void UpdateCountdown()
     {
         ClearCountdowns();
+
         string t = secondsLeft.ToString();
-        switch (current)
-        {
-            case Phase.Red: RedCountdown.Text = t; break;
-            case Phase.Yellow: YellowCountdown.Text = t; break;
-            case Phase.Green: GreenCountdown.Text = t; break;
-        }
+
+        if (current == Phase.Red) RedCountdown.Text = t;
+        else if (current == Phase.Yellow) YellowCountdown.Text = t;
+        else if (current == Phase.Green) GreenCountdown.Text = t;
     }
 
     void ClearCountdowns()
@@ -218,12 +256,20 @@ public partial class Valgusfoor : ContentPage
         GreenCountdown.Text = "";
     }
 
-    // Часы сверху
     void StartClock()
     {
-        clockTimer ??= Dispatcher.CreateTimer();
+        if (clockTimer == null)
+        {
+            clockTimer = Dispatcher.CreateTimer();
+        }
+
         clockTimer.Interval = TimeSpan.FromSeconds(1);
-        clockTimer.Tick += (_, __) => ClockLabel.Text = DateTime.Now.ToString("HH:mm:ss");
-        if (!clockTimer.IsRunning) clockTimer.Start();
+        clockTimer.Tick += (_, __) =>
+        {
+            ClockLabel.Text = DateTime.Now.ToString("HH:mm:ss");
+        };
+
+        if (!clockTimer.IsRunning)
+            clockTimer.Start();
     }
 }
