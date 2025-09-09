@@ -8,7 +8,7 @@
 
     <Shell.TitleView>
         <Label 
-            Text=""
+            Text="Меню"
             FontFamily="verdana"
             FontSize="Title"
             TextColor="DarkBlue"
