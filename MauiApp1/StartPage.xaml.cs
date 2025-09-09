@@ -47,7 +47,7 @@ public partial class StartPage : ContentPage
             {
                 Text = tekstid[i],
                 FontSize = 20,
-                TextColor = Colors.Black,
+                TextColor = Colors.White,
                 CornerRadius = 20,
                 FontFamily = "verdana",
                 ZIndex = i // запомним индекс, чтобы знать, какую страницу открывать
