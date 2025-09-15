@@ -4,7 +4,7 @@
              x:Class="MauiApp1.Valgusfoor"
              Title="Valgusfoor">
 
-    <!-- мягкий фон -->
+    <!-- фон -->
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
             <GradientStop Color="Lavender" Offset="0.0"/>
