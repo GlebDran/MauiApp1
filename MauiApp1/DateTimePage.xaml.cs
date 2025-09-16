@@ -129,9 +129,8 @@ public partial class DateTimePage : ContentPage
 		{
 			AbsoluteLayout.SetLayoutBounds(elementid[i], new Rect(0.5, 0.1 + i * 0.16, 0.9, 0.15));
 			AbsoluteLayout.SetLayoutFlags(elementid[i], AbsoluteLayoutFlags.All);
-            Content = al;
         }
-			
+        Content = al;
     }
 
     private void Kuupaeva_valimine(object? sender, DateChangedEventArgs e)
