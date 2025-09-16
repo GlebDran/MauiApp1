@@ -11,7 +11,8 @@ public partial class StartPage : ContentPage
         new FigurePage(),
         new TimerPage(),
         new Valgusfoor(),
-        new DateTimePage()
+        new DateTimePage(),
+        new Snowman()
     };
 
     // тексты для кнопок
@@ -21,7 +22,8 @@ public partial class StartPage : ContentPage
         "Фигуры",
         "Таймер",
         "Светофор",
-        "Дата и время"
+        "Дата и время",
+        "Снеговик"
     };
 
     ScrollView sv;              // скролл для прокрутки
