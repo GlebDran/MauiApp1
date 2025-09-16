@@ -10,7 +10,7 @@ public partial class StartPage : ContentPage
         new TextPage(),
         new FigurePage(),
         new TimerPage(),
-        new Valgusfoor()
+        new Valgusfoor(),
         new DateTimePage()
     };
 
