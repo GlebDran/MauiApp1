@@ -52,6 +52,7 @@ public partial class StartPage : ContentPage
             Button nupp = new Button
             {
                 Text = tekstid[i],
+                BackgroundColor = Color.FromArgb("#2196F3"),
                 FontSize = 20,
                 TextColor = Colors.White,
                 CornerRadius = 20,
