@@ -31,7 +31,7 @@ namespace MauiApp1
         {
             InitializeComponent();
 
-            // Применим начальные значения контролов
+            // Применим начальные значения контролов начальные значения для UI-элементов
             SnowmanContainer.Opacity = OpacitySlider.Value;
             SpeedValueLabel.Text = $"{SpeedMs} мс";
 
@@ -89,7 +89,7 @@ namespace MauiApp1
                     await SnowmanContainer.ScaleTo(1.0, 1);
                     await SnowmanContainer.TranslateTo(0, 0, 1);
                     break;
-
+                //меняем цвет шарфа и ведра на случайный
                 case "Сменить цвет":
                     if (await DisplayAlert("Сменить цвет", "Изменить случайно цвета шарфа и ведра?", "Да", "Нет"))
                     {

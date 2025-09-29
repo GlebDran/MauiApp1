@@ -78,6 +78,9 @@
 	  <MauiXaml Update="GridPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="PuzzlePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Snowman.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
