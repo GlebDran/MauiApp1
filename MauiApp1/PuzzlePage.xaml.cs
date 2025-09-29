@@ -2,8 +2,13 @@ namespace MauiApp1;
 
 public partial class PuzzlePage : ContentPage
 {
-	public PuzzlePage()
-	{
-		InitializeComponent();
-	}
+	private const int Rows = 3;
+	private const int Columns = 4;
+	Grid sourcegrid, targetgrid;
+
+	
+		public PuzzlePage()
+		{
+
+		}
 }
