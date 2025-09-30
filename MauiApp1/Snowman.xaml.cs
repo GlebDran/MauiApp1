@@ -103,7 +103,7 @@ namespace MauiApp1
 
                 case "Растопить":
                     SnowmanContainer.IsVisible = true;
-                    // Бонус для атмосферы: слегка «роняем» ведро перед растапливанием
+                    // роняем ведро перед растапливанием
                     await Task.WhenAll(
                         SnowmanContainer.FadeTo(0.0, (uint)SpeedMs),
                         SnowmanContainer.ScaleTo(0.4, (uint)SpeedMs, Easing.CubicIn)
@@ -205,7 +205,7 @@ namespace MauiApp1
                 }
             }
 
-            // Запускаем несколько «потоков снегопада» — так равномернее
+            // Запускаем несколько «потоков снегопада» 
             var tasks = new List<Task>();
             for (int i = 0; i < flakesCount; i++)
                 tasks.Add(SpawnAndFallAsync());
