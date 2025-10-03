@@ -13,7 +13,7 @@ public partial class StartPage : ContentPage
         new Valgusfoor(),
         new DateTimePage(),
         new Snowman(),
-        new GridPage(),
+        new TttPage(),
         new PuzzlePage()
     };
 

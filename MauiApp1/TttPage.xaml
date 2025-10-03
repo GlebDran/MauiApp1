@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MauiApp1.TttPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#F7F3EE"
+    Title="Trips Traps Trull">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="18">
+
+            <Label Text="Катка с Димоном"
+                   FontSize="30"
+                   FontAttributes="Bold"
+                   FontFamily = "verdana"
+                   TextColor="#30343A"
+                   HorizontalOptions="Center" />
+
+            <Grid x:Name="BoardGrid"
+                  WidthRequest="350" HeightRequest="350"
+                  RowSpacing="6" ColumnSpacing="6"
+                  HorizontalOptions="Center" />
+
+            <Grid x:Name="ControlsGrid"
+                  ColumnDefinitions="*,*"
+                  RowDefinitions="Auto,Auto,Auto"
+                  ColumnSpacing="12" RowSpacing="12"
+                  Margin="0,8,0,0">
+
+                <Button Grid.Row="0" Grid.Column="0"
+                        Text="Начать бойню"
+                        FontFamily = "verdana"
+                        Clicked="NewGameClicked"/>
+
+                <Button Grid.Row="0" Grid.Column="1"
+                        Text="Кто первый?"
+                        FontFamily = "verdana"
+                        Clicked="WhoStartsClicked"/>
+
+                <Button Grid.Row="1" Grid.Column="0"
+                        Text="Тапки"
+                        FontFamily = "verdana"
+                        Clicked="ChooseStickerClicked"/>
+
+                <Button Grid.Row="1" Grid.Column="1"
+                        Text="Размер поля"
+                        FontFamily = "verdana"
+                        Clicked="ChangeSizeClicked"/>
+
+                <Button x:Name="BotButton"
+                        Grid.Row="2" Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        FontFamily = "verdana"
+                        Clicked="ToggleBotClicked"/>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
