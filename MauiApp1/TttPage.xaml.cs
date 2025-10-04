@@ -19,20 +19,24 @@ public partial class TttPage : ContentPage
     // параметры/состояние
     int size = 3;
     bool vsBot = false;       // играет ли бот (Димон, всегда O)
-    bool gameOver = false;
+    bool gameOver = false;    // игра завершена (победа/ничья) — блокируем ввод
     readonly Random rng = new();
 
+    // >>> чей ход в соло-режиме (без бота): X или O
+    //     при игре против бота клики пользователя всегда ставят X, а бот — O
+    char nextHumanMark = 'X';
+
     // визуал/логика доски
-    Image[,]? pics;           // изображения в клетках
-    char?[,]? board;          // 'X' / 'O' / null
+    Image[,]? pics;           // изображения в клетках (UI)
+    char?[,]? board;          // внутренняя доска: 'X' / 'O' / null
 
     // оформление клеток/линий
     readonly Color cellColor = Color.FromArgb("#F7F3EE");
     readonly Color lineColor = Color.FromArgb("#3A3F45");
 
     // файлы стикеров
-    string userSticker = "user1.png"; // твой текущий (X)
-    string botSticker = "bot.png";    // Димон (O)
+    string userSticker = "user1.png"; // стикер игрока X (и вообще "человеческий" X)
+    string botSticker = "bot.png";    // стикер бота O
 
     // красивые имена -> файлы стикеров пользователя
     readonly Dictionary<string, string> _userSkins = new()
@@ -58,7 +62,7 @@ public partial class TttPage : ContentPage
         BotButton.Text = vsBot ? BotOnLabel : BotOffLabel;
     }
 
-    // Построение поля
+    // Построение/сброс поля и состояния
     void BuildBoard()
     {
         BoardGrid.Children.Clear();
@@ -99,22 +103,31 @@ public partial class TttPage : ContentPage
                 board[r, c] = null;
             }
 
+        // общий сброс состояния партии
         gameOver = false;
         BoardGrid.InputTransparent = false;
+
+        // >>> в соло-режиме начинаем с X
+        nextHumanMark = 'X';
     }
 
-    // Клик по клетке (ходит игрок X). Бот всегда O.
+    // Клик по клетке.
+    // Режимы:
+    // 1) vsBot == true: игрок ставит X, затем (если не конец) бот ставит O.
+    // 2) vsBot == false: играешь сам за обе стороны — ходы чередуются X <-> O.
     async void OnCellTapped(int r, int c)
     {
         if (gameOver || board![r, c] != null) return;
 
-        PutSticker(r, c, 'X');
-
-        if (CheckWinner('X')) { await EndGameAsync("X выиграл!"); return; }
-        if (IsDraw()) { await EndGameAsync("Ничья!"); return; }
-
-        if (vsBot) // ход Димона
+        if (vsBot)
         {
+            // --- режим с ботом: человек всегда ставит X ---
+            PutSticker(r, c, 'X');
+
+            if (CheckWinner('X')) { await EndGameAsync("X выиграл!"); return; }
+            if (IsDraw()) { await EndGameAsync("Ничья!"); return; }
+
+            // ход Димона (O)
             await Task.Delay(150);
             var move = ChooseMediumForO() ?? RandomEmpty();
             if (move is not null)
@@ -126,16 +139,29 @@ public partial class TttPage : ContentPage
                 if (IsDraw()) { await EndGameAsync("Ничья!"); return; }
             }
         }
+        else
+        {
+            // --- соло-режим: ставим текущий символ и переключаем очередь ---
+            PutSticker(r, c, nextHumanMark);
+
+            if (CheckWinner(nextHumanMark)) { await EndGameAsync($"{nextHumanMark} выиграл!"); return; }
+            if (IsDraw()) { await EndGameAsync("Ничья!"); return; }
+
+            // >>> переключение X <-> O
+            nextHumanMark = (nextHumanMark == 'X') ? 'O' : 'X';
+        }
     }
 
     // Поставить картинку и обновить внутреннюю доску
     void PutSticker(int r, int c, char who)
     {
         board![r, c] = who;
+
+        // Стикер: X — пользовательский, O — "ботовский" (в соло-режиме это просто визуальный второй скин)
         pics![r, c].Source = ImageSource.FromFile(who == 'X' ? userSticker : botSticker);
     }
 
-    // Победа/ничья/рандомы
+    // Проверка победы: строки, столбцы, диагонали
     bool CheckWinner(char who)
     {
         for (int r = 0; r < size; r++)
@@ -150,12 +176,14 @@ public partial class TttPage : ContentPage
         return false;
     }
 
+    // Ничья: нет пустых клеток и никто не выиграл
     bool IsDraw()
     {
         foreach (var v in board!) if (v is null) return false;
         return !CheckWinner('X') && !CheckWinner('O');
     }
 
+    // Случайная пустая клетка
     (int r, int c)? RandomEmpty()
     {
         var list = new List<(int r, int c)>();
@@ -165,6 +193,7 @@ public partial class TttPage : ContentPage
         return list.Count == 0 ? null : list[rng.Next(list.Count)];
     }
 
+    // Перебор пустых клеток (итератор)
     IEnumerable<(int r, int c)> EmptyCells()
     {
         for (int r = 0; r < size; r++)
@@ -189,6 +218,7 @@ public partial class TttPage : ContentPage
         return null;
     }
 
+    // Гипотетический ход: поставили, проверили, откатили
     bool WouldWinAt(int r, int c, char who)
     {
         var old = board![r, c];
@@ -198,6 +228,7 @@ public partial class TttPage : ContentPage
         return win;
     }
 
+    // Завершение игры: блок ввода, звук, алерт
     async Task EndGameAsync(string message)
     {
         gameOver = true;
@@ -208,9 +239,11 @@ public partial class TttPage : ContentPage
 
     // -------- КНОПКИ --------
 
+    // Новая игра
     void NewGameClicked(object sender, EventArgs e) => BuildBoard();
 
     // Кто первый? — Димон / Тапки / Вообще похую
+    // Примечание: если выбран "Димон", мы включаем бота (если был выключен) и даём ему сделать первый ход (O).
     async void WhoStartsClicked(object sender, EventArgs e)
     {
         var ch = await DisplayActionSheet("Кто первый?", "Отмена", null,
@@ -229,6 +262,7 @@ public partial class TttPage : ContentPage
 
         if (botFirst)
         {
+            // если бот ходит первым — включаем бота, если он был выключен
             if (!vsBot) { vsBot = true; BotButton.Text = BotOnLabel; }
 
             await Task.Delay(120);
@@ -239,12 +273,17 @@ public partial class TttPage : ContentPage
                 PutSticker(r, c, 'O');
             }
         }
+        else
+        {
+            // если первым ходит человек и бот выключен — в соло-режиме стартуем с X
+            // (BuildBoard уже выставил nextHumanMark = 'X')
+        }
     }
 
     // Выбор стикера для игрока X красивыми названиями
     async void ChooseStickerClicked(object sender, EventArgs e)
     {
-        var choice = await DisplayActionSheet("Стикер для Тапков (X)", "Отмена", null,
+        var choice = await DisplayActionSheet("Выбери цвет тапка", "Отмена", null,
                                               _userSkins.Keys.ToArray());
         if (string.IsNullOrEmpty(choice) || choice == "Отмена") return;
 
@@ -258,6 +297,7 @@ public partial class TttPage : ContentPage
     }
 
     // Вкл/выкл Димона
+    // Примечание: при переключении строим доску заново (сброс партии).
     void ToggleBotClicked(object sender, EventArgs e)
     {
         vsBot = !vsBot;
@@ -286,6 +326,7 @@ public partial class TttPage : ContentPage
         await EnsureSoundPreparedAsync(); // прогреем звук, чтобы не лагало
     }
 
+    // Подготовка звука (Android: копия в кэш для MediaPlayer)
     async Task EnsureSoundPreparedAsync()
     {
 #if ANDROID
@@ -300,6 +341,7 @@ public partial class TttPage : ContentPage
 #endif
     }
 
+    // Проиграть звук окончания партии
     async Task PlayGameOverAsync()
     {
 #if ANDROID

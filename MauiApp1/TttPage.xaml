@@ -3,57 +3,137 @@
     x:Class="MauiApp1.TttPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="#F7F3EE"
-    Title="Trips Traps Trull">
+    Title="Trips Traps Trull"
+    BackgroundImageSource="dimonback.png">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="18">
+    <!-- ===== РЕСУРСЫ СТРАНИЦЫ: цвета и стили ===== -->
+    <ContentPage.Resources>
+        <ResourceDictionary>
 
-            <Label Text="Катка с Димоном"
-                   FontSize="30"
-                   FontAttributes="Bold"
-                   FontFamily = "verdana"
-                   TextColor="#30343A"
-                   HorizontalOptions="Center" />
+            <!-- Палитра -->
+            <Color x:Key="ClrPrimary">#4B3FA3</Color>
+            <!-- основной фиолетовый -->
+            <Color x:Key="ClrPrimaryPressed">#3C3187</Color>
+            <!-- тёмный при нажатии -->
+            <Color x:Key="ClrOnPrimary">#FFFFFF</Color>
+            <!-- текст на кнопках -->
+            <Color x:Key="ClrTitle">#FFFFFF</Color>
+            <!-- цвет заголовка -->
 
-            <Grid x:Name="BoardGrid"
-                  WidthRequest="350" HeightRequest="350"
-                  RowSpacing="6" ColumnSpacing="6"
-                  HorizontalOptions="Center" />
+            <!-- Общий стиль для всех кнопок -->
+            <Style TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource ClrPrimary}" />
+                <Setter Property="TextColor" Value="{StaticResource ClrOnPrimary}" />
+                <Setter Property="FontFamily" Value="verdana" />
+                <Setter Property="CornerRadius" Value="14" />
+                <Setter Property="Padding" Value="14,10" />
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <Shadow Brush="#40000000" Offset="0,2" Radius="8" />
+                    </Setter.Value>
+                </Setter>
 
-            <Grid x:Name="ControlsGrid"
-                  ColumnDefinitions="*,*"
-                  RowDefinitions="Auto,Auto,Auto"
-                  ColumnSpacing="12" RowSpacing="12"
-                  Margin="0,8,0,0">
+                <!-- Управление состояниями кнопки -->
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
 
-                <Button Grid.Row="0" Grid.Column="0"
-                        Text="Начать бойню"
-                        FontFamily = "verdana"
-                        Clicked="NewGameClicked"/>
+                            <!-- Нормальное состояние -->
+                            <VisualState x:Name="Normal" />
 
-                <Button Grid.Row="0" Grid.Column="1"
-                        Text="Кто первый?"
-                        FontFamily = "verdana"
-                        Clicked="WhoStartsClicked"/>
+                            <!-- При нажатии -->
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource ClrPrimaryPressed}" />
+                                </VisualState.Setters>
+                            </VisualState>
 
-                <Button Grid.Row="1" Grid.Column="0"
-                        Text="Тапки"
-                        FontFamily = "verdana"
-                        Clicked="ChooseStickerClicked"/>
+                            <!-- Заблокированная кнопка -->
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#663C3187" />
+                                    <Setter Property="TextColor" Value="#AAFFFFFF" />
+                                </VisualState.Setters>
+                            </VisualState>
 
-                <Button Grid.Row="1" Grid.Column="1"
-                        Text="Размер поля"
-                        FontFamily = "verdana"
-                        Clicked="ChangeSizeClicked"/>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
 
-                <Button x:Name="BotButton"
-                        Grid.Row="2" Grid.Column="0"
-                        Grid.ColumnSpan="2"
-                        FontFamily = "verdana"
-                        Clicked="ToggleBotClicked"/>
-            </Grid>
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
-        </VerticalStackLayout>
-    </ScrollView>
+
+    <!-- ===== ОСНОВНОЙ LAYOUT ===== -->
+    <Grid>
+
+        <!-- 1. Фон: берётся из BackgroundImageSource -->
+
+        <!-- 2. Затемняющий градиент сверху, чтобы текст не терялся -->
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#55000000" Offset="0.0" />
+                    <GradientStop Color="#00000000" Offset="0.35" />
+                    <GradientStop Color="#11000000" Offset="1.0" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+
+        <!-- 3. Контент поверх -->
+        <ScrollView>
+            <VerticalStackLayout Padding="24" Spacing="18">
+
+                <!-- Заголовок -->
+                <Label Text="Катка с Димоном"
+                       FontSize="30"
+                       FontAttributes="Bold"
+                       FontFamily="verdana"
+                       TextColor="{StaticResource ClrTitle}"
+                       HorizontalOptions="Center">
+                    <Label.Shadow>
+                        <Shadow Brush="#66000000" Offset="0,2" Radius="6" />
+                    </Label.Shadow>
+                </Label>
+
+                <!-- Игровое поле -->
+                <Grid x:Name="BoardGrid"
+                      WidthRequest="350" HeightRequest="350"
+                      RowSpacing="6" ColumnSpacing="6"
+                      HorizontalOptions="Center" />
+
+                <!-- Кнопки управления -->
+                <Grid x:Name="ControlsGrid"
+                      ColumnDefinitions="*,*"
+                      RowDefinitions="Auto,Auto,Auto"
+                      ColumnSpacing="12" RowSpacing="12"
+                      Margin="0,8,0,0">
+
+                    <Button Grid.Row="0" Grid.Column="0"
+                            Text="Начать бойню"
+                            Clicked="NewGameClicked"/>
+
+                    <Button Grid.Row="0" Grid.Column="1"
+                            Text="Кто первый?"
+                            Clicked="WhoStartsClicked"/>
+
+                    <Button Grid.Row="1" Grid.Column="0"
+                            Text="Тапки"
+                            Clicked="ChooseStickerClicked"/>
+
+                    <Button Grid.Row="1" Grid.Column="1"
+                            Text="Размер поля"
+                            Clicked="ChangeSizeClicked"/>
+
+                    <Button x:Name="BotButton"
+                            Grid.Row="2" Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Clicked="ToggleBotClicked"/>
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
 </ContentPage>
